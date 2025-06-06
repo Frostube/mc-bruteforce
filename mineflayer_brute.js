@@ -140,6 +140,16 @@ function loadState() {
         if (fs.existsSync(stateFile)) {
             const savedState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
             state = { ...state, ...savedState };
+            // Ensure account states exist for all test accounts
+            testAccounts.forEach(account => {
+                if (!state.accountStates[account.username]) {
+                    state.accountStates[account.username] = {
+                        currentAttempt: 0,
+                        lastSessionEnd: 0,
+                        consecutiveFailures: 0
+                    };
+                }
+            });
             log('Loaded previous test state', 'STATE');
             log(`Resuming from attempt ${state.currentAttempt}`, 'STATE');
         }
