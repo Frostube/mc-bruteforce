@@ -171,7 +171,7 @@ function saveState() {
 // Get next test account
 function getNextTestAccount() {
     // Sort accounts by priority and failure count
-    const sortedAccounts = testAccounts.sort((a, b) => {
+    const sortedAccounts = [...testAccounts].sort((a, b) => {
         const aState = state.accountStates[a.username];
         const bState = state.accountStates[b.username];
         
