@@ -123,16 +123,6 @@ let state = {
     totalPasswords: passwords.length
 };
 
-// Initialize account states
-testAccounts.forEach(account => {
-    if (!state.accountStates[account.username]) {
-        state.accountStates[account.username] = {
-            currentAttempt: 0,
-            lastSessionEnd: 0,
-            consecutiveFailures: 0
-        };
-    }
-});
 
 // Load state if exists
 function loadState() {
@@ -140,16 +130,6 @@ function loadState() {
         if (fs.existsSync(stateFile)) {
             const savedState = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
             state = { ...state, ...savedState };
-            // Ensure account states exist for all test accounts
-            testAccounts.forEach(account => {
-                if (!state.accountStates[account.username]) {
-                    state.accountStates[account.username] = {
-                        currentAttempt: 0,
-                        lastSessionEnd: 0,
-                        consecutiveFailures: 0
-                    };
-                }
-            });
             log('Loaded previous test state', 'STATE');
             log(`Resuming from attempt ${state.currentAttempt}`, 'STATE');
         }
@@ -353,6 +333,17 @@ async function tryPassword(username, password, proxyUri) {
 // Enhanced main function
 async function main() {
     loadState();
+
+    // Initialize account states after loading saved state
+    testAccounts.forEach(account => {
+        if (!state.accountStates[account.username]) {
+            state.accountStates[account.username] = {
+                currentAttempt: 0,
+                lastSessionEnd: 0,
+                consecutiveFailures: 0
+            };
+        }
+    });
     
     log('Starting penetration test of 6b6t.org authentication system', 'INFO');
     log(`Worker ID: ${workerId}`, 'INFO');
