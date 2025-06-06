@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+penetration_test_state_*.json
+
+# Reports
+reports/
+
+# Environment variables
+.env
+
+# Password files
+passwords.txt
+passwords_full.txt
+PowerUserTest_passwords.txt
+admin_mod_passwords.txt
+minecraft_passwords.txt
+combined_passwords.txt
+
+# Proxy files
+proxies.txt
+
+# Network captures
+*.pcapng
+
+# Old files
+old files/
+
+# Wordlists
+Probable-Wordlists/
+SecLists/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo 
