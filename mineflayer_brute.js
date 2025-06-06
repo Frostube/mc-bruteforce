@@ -14,16 +14,6 @@ const testAccounts = [
         username: 'Advikbot',
         type: 'tester',
         priority: 1
-    },
-    {
-        username: 'PowerUserTest',
-        type: 'power_user',
-        priority: 2
-    },
-    {
-        username: 'ModTest',
-        type: 'moderator',
-        priority: 3
     }
 ];
 
