@@ -1,18 +1,12 @@
 const mineflayer = require('mineflayer');
 const fs = require('fs');
 const { SocksProxyAgent } = require('socks-proxy-agent');
-const { exec } = require('child_process');
 const { createObjectCsvWriter } = require('csv-writer');
 
 // Get worker configuration from environment
 const workerId = parseInt(process.env.WORKER_ID, 10) || 0;
 const workerCount = parseInt(process.env.WORKER_COUNT, 10) || 1;
 const proxyUri = process.env.PROXY || '';
-
-// Create proxy agent from ENV or fall back to no proxy
-const agent = proxyUri
-    ? new SocksProxyAgent(proxyUri)
-    : undefined;
 
 // Test accounts configuration
 const testAccounts = [
