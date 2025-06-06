@@ -91,6 +91,10 @@ const config = {
 };
 
 // Load and distribute passwords
+if (!fs.existsSync('passwords.txt')) {
+    console.error('Error: passwords.txt not found');
+    process.exit(1);
+}
 const allPasswords = fs.readFileSync('passwords.txt', 'utf8')
     .split('\n')
     .map(p => p.trim())
