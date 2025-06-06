@@ -87,8 +87,6 @@ const allPasswords = fs.readFileSync('passwords.txt', 'utf8')
 // Distribute passwords among workers
 const passwords = allPasswords.filter((_, idx) => idx % workerCount === workerId);
 
-log(`Worker #${workerId}: Processing ${passwords.length} of ${allPasswords.length} passwords`, 'INFO');
-
 // Create logs directory if it doesn't exist
 if (!fs.existsSync('logs')) {
     fs.mkdirSync('logs');
@@ -104,6 +102,9 @@ function log(message, type = 'INFO') {
     console.log(logMessage);
     logStream.write(logMessage + '\n');
 }
+
+// Initial worker log message (requires logStream)
+log(`Worker #${workerId}: Processing ${passwords.length} of ${allPasswords.length} passwords`, 'INFO');
 
 // Function to clean color codes from messages
 function cleanMessage(message) {
