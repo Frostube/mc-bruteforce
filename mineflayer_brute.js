@@ -11,8 +11,8 @@ const proxyUri = process.env.PROXY || '';
 // Test accounts configuration
 const testAccounts = [
     {
-        username: 'Advikbot',
-        type: 'tester',
+        username: 'Frostubee',
+        type: 'known',
         priority: 1
     }
 ];
@@ -74,21 +74,6 @@ const config = {
     }
 };
 
-// Load and distribute passwords
-if (!fs.existsSync('passwords.txt')) {
-    console.error('Error: passwords.txt not found');
-    process.exit(1);
-}
-const allPasswords = fs.readFileSync('passwords.txt', 'utf8')
-    .split('\n')
-    .map(p => p.trim())
-    .filter(p => p && !p.startsWith('#')); // Filter out empty lines and comments
-
-// Distribute passwords among workers
-const passwords = allPasswords.filter((_, idx) => idx % workerCount === workerId);
-
-log(`Worker #${workerId}: Processing ${passwords.length} of ${allPasswords.length} passwords`, 'INFO');
-
 // Create logs directory if it doesn't exist
 if (!fs.existsSync('logs')) {
     fs.mkdirSync('logs');
@@ -104,6 +89,21 @@ function log(message, type = 'INFO') {
     console.log(logMessage);
     logStream.write(logMessage + '\n');
 }
+
+// Load and distribute passwords
+if (!fs.existsSync('passwords.txt')) {
+    console.error('Error: passwords.txt not found');
+    process.exit(1);
+}
+const allPasswords = fs.readFileSync('passwords.txt', 'utf8')
+    .split('\n')
+    .map(p => p.trim())
+    .filter(p => p && !p.startsWith('#')); // Filter out empty lines and comments
+
+// Distribute passwords among workers
+const passwords = allPasswords.filter((_, idx) => idx % workerCount === workerId);
+
+log(`Worker #${workerId}: Processing ${passwords.length} of ${allPasswords.length} passwords`, 'INFO');
 
 // Function to clean color codes from messages
 function cleanMessage(message) {
